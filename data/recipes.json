@@ -4,4 +4,30 @@
     "ingredients": ["flour", "milk", "egg", "baking powder", "salt", "butter"],
     "steps": ["Mix dry ingredients", "Add wet ingredients", "Cook on skillet until golden"]
   }
+  ,
+  {
+    "name": "Tomato Soup",
+    "ingredients": ["tomato", "onion", "garlic", "salt", "olive oil", "vegetable stock"],
+    "steps": ["Saute onion and garlic", "Add chopped tomatoes and stock", "Simmer 20 minutes", "Blend and season to taste"]
+  },
+  {
+    "name": "Eggplant Parmesan",
+    "ingredients": ["eggplant", "tomato sauce", "mozzarella", "parmesan", "olive oil", "salt"],
+    "steps": ["Slice and salt eggplant", "Fry or bake slices", "Layer with sauce and cheese", "Bake until cheese bubbles"]
+  },
+  {
+    "name": "Banana Smoothie",
+    "ingredients": ["banana", "milk", "honey", "ice"],
+    "steps": ["Combine ingredients in blender", "Blend until smooth"]
+  },
+  {
+    "name": "Omelette",
+    "ingredients": ["egg", "salt", "butter", "cheese"],
+    "steps": ["Beat eggs with salt", "Melt butter in pan", "Cook eggs and add cheese"]
+  },
+  {
+    "name": "Spanish Tortilla",
+    "ingredients": ["potato", "egg", "onion", "olive oil", "salt"],
+    "steps": ["Slice potatoes and onion", "Fry gently", "Add beaten eggs and cook until set"]
+  }
 ]
