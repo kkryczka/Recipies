@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Edit {{ recipe.name }}</title>
+  </head>
+  <body>
+    <a href="/recipes/{{ recipe.id }}">Back</a>
+    <h1>Edit {{ recipe.name }}</h1>
+    <form method="post" action="/recipes/{{ recipe.id }}/edit">
+      <label>Name<br /><input name="name" value="{{ recipe.name }}" required /></label><br /><br />
+      <label>Ingredients (one per line)<br /><textarea name="ingredients">{{ recipe.ingredients }}</textarea></label><br /><br />
+      <label>Steps (one per line)<br /><textarea name="steps">{{ recipe.steps }}</textarea></label><br /><br />
+      <button type="submit">Save</button>
+    </form>
+  </body>
+  </html>

@@ -1,0 +1,16 @@
+name: recipies
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - fastapi
+  - uvicorn
+  - sqlalchemy
+  - jinja2
+  - pydantic
+  - pip:
+    - aiosqlite
+    - pytest
+  - python-multipart
+  - httpx

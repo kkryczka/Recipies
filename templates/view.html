@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ recipe.name }}</title>
+  </head>
+  <body>
+    <a href="/">Back</a>
+    <h1>{{ recipe.name }}</h1>
+    <h4>Ingredients</h4>
+    <ul>
+      {% for i in recipe.ingredients %}
+      <li>{{ i }}</li>
+      {% endfor %}
+    </ul>
+    <h4>Steps</h4>
+    <ol>
+      {% for s in recipe.steps %}
+      <li>{{ s }}</li>
+      {% endfor %}
+    </ol>
+    <p>
+      <a href="/recipes/{{ recipe.id }}/edit">Edit</a>
+      <form method="post" action="/recipes/{{ recipe.id }}/delete" style="display:inline">
+        <button type="submit">Delete</button>
+      </form>
+    </p>
+  </body>
+  </html>

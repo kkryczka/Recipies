@@ -1,0 +1,7 @@
+[
+  {
+    "name": "Simple Pancakes",
+    "ingredients": ["flour", "milk", "egg", "baking powder", "salt", "butter"],
+    "steps": ["Mix dry ingredients", "Add wet ingredients", "Cook on skillet until golden"]
+  }
+]
