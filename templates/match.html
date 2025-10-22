@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Match recipes</title>
+  </head>
+  <body>
+    <a href="/">Back</a>
+    <h1>Find recipes from what you have</h1>
+    <form method="post" action="/match">
+      <label>Ingredients you have (one per line)<br /><textarea name="ingredients" rows="6">{{ have_text }}</textarea></label><br /><br />
+      <button type="submit">Find</button>
+    </form>
+
+    {% if results %}
+    <h2>Results (you have: {{ results.have | join(', ') }})</h2>
+    <ul>
+      {% for r in results.results %}
+      <li>
+        <strong>{{ r.name }}</strong>
+        {% if r.match %}
+          — <em>All ingredients available</em>
+        {% else %}
+          — Missing ({{ r.missing_count }}): {{ r.missing | join(', ') }}
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </body>
+</html>

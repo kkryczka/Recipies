@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 try:
     # Pydantic v2+: use ConfigDict
     from pydantic import ConfigDict
@@ -8,9 +8,9 @@ except Exception:
 
 
 class RecipeBase(BaseModel):
-    name: str
-    ingredients: Optional[List[str]] = []
-    steps: Optional[List[str]] = []
+    name: str = Field(..., json_schema_extra={"example": "Simple Pancakes"})
+    ingredients: Optional[List[str]] = Field(default_factory=list, json_schema_extra={"example": ["flour", "milk", "egg"]})
+    steps: Optional[List[str]] = Field(default_factory=list, json_schema_extra={"example": ["Mix dry ingredients", "Add wet ingredients", "Cook on skillet until golden"]})
 
 
 class RecipeCreate(RecipeBase):

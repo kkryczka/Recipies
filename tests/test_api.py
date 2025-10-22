@@ -50,11 +50,12 @@ def test_root_and_api_list():
     assert res.status_code == 200
     assert "Test Pancake" in res.text
 
-    res2 = client.get("/api/recipes")
+    res2 = client.get("/api/recipes?page=1&page_size=100")
     assert res2.status_code == 200
     data = res2.json()
-    assert isinstance(data, list)
-    assert any(item.get("name") == "Test Pancake" for item in data)
+    assert isinstance(data, dict)
+    items = data.get("items", [])
+    assert any(item.get("name") == "Test Pancake" for item in items)
 
 
 def test_create_recipe_via_form():
@@ -91,11 +92,12 @@ def test_api_json_structure():
     db.commit()
     db.close()
 
-    res = client.get("/api/recipes")
+    res = client.get("/api/recipes?page=1&page_size=100")
     assert res.status_code == 200
     data = res.json()
-    assert isinstance(data, list)
-    found = next((it for it in data if it.get("name") == "JsonRecipe"), None)
+    assert isinstance(data, dict)
+    items = data.get("items", [])
+    found = next((it for it in items if it.get("name") == "JsonRecipe"), None)
     assert found is not None
     assert isinstance(found.get("ingredients"), list)
     assert isinstance(found.get("steps"), list)
@@ -118,8 +120,8 @@ def test_update_and_delete_recipe():
     assert res.status_code in (200, 303)
 
     # find its id via API
-    data = client.get("/api/recipes").json()
-    item = next((it for it in data if it.get("name") == "ToChange"), None)
+    data = client.get("/api/recipes?page=1&page_size=100").json()
+    item = next((it for it in data.get("items", []) if it.get("name") == "ToChange"), None)
     assert item is not None
     rid = item["id"]
 
@@ -127,12 +129,100 @@ def test_update_and_delete_recipe():
     res = client.post(f"/recipes/{rid}/edit", data={"name": "Changed", "ingredients": "a\nb", "steps": "1\n2"})
     assert res.status_code in (200, 303)
 
-    data = client.get("/api/recipes").json()
-    assert any(it.get("name") == "Changed" for it in data)
+    data = client.get("/api/recipes?page=1&page_size=100").json()
+    assert any(it.get("name") == "Changed" for it in data.get("items", []))
 
     # delete it
     res = client.post(f"/recipes/{rid}/delete")
     assert res.status_code in (200, 303)
 
-    data = client.get("/api/recipes").json()
-    assert not any(it.get("id") == rid for it in data)
+    data = client.get("/api/recipes?page=1&page_size=100").json()
+    assert not any(it.get("id") == rid for it in data.get("items", []))
+
+
+def test_json_api_crud():
+    # create
+    payload = {"name": "JsonCRUD", "ingredients": ["a"], "steps": ["b"]}
+    res = client.post("/api/recipes", json=payload)
+    assert res.status_code == 200
+    obj = res.json()
+    rid = obj["id"]
+
+    # get
+    res = client.get(f"/api/recipes/{rid}")
+    assert res.status_code == 200
+    assert res.json()["name"] == "JsonCRUD"
+
+    # update
+    payload2 = {"name": "JsonCRUD-Updated", "ingredients": ["x"], "steps": ["y"]}
+    res = client.put(f"/api/recipes/{rid}", json=payload2)
+    assert res.status_code == 200
+    assert res.json()["name"] == "JsonCRUD-Updated"
+
+    # delete
+    res = client.delete(f"/api/recipes/{rid}")
+    assert res.status_code == 200
+    assert res.json().get("deleted") is True
+
+
+def test_search_api():
+    # insert multiple recipes
+    client.post("/api/recipes", json={"name": "Apple Pie", "ingredients": ["apple"], "steps": ["bake"]})
+    client.post("/api/recipes", json={"name": "Banana Bread", "ingredients": ["banana"], "steps": ["bake"]})
+    client.post("/api/recipes", json={"name": "Cherry Tart", "ingredients": ["cherry"], "steps": ["bake"]})
+
+    res = client.get("/api/recipes?q=Banana&page=1&page_size=10")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["total"] == 1
+    assert data["items"][0]["name"] == "Banana Bread"
+
+
+def test_link_headers_pagination():
+    # ensure we have multiple items
+    for i in range(1, 12):
+        client.post("/api/recipes", json={"name": f"Lnk{i}", "ingredients": ["x"], "steps": ["y"]})
+
+    # request page 2 with page_size 5 -> should have prev and next
+    res = client.get("/api/recipes?page=2&page_size=5")
+    assert res.status_code == 200
+    link = res.headers.get("Link")
+    assert link is not None
+    assert 'rel="prev"' in link and 'rel="next"' in link
+
+    # first page should not have prev
+    res = client.get("/api/recipes?page=1&page_size=5")
+    assert res.status_code == 200
+    link = res.headers.get("Link")
+    assert link is not None
+    assert 'rel="prev"' not in link and 'rel="next"' in link
+
+
+def test_match_api():
+    # create recipes
+    client.post("/api/recipes", json={"name": "Match1", "ingredients": ["egg", "flour"], "steps": ["mix"]})
+    client.post("/api/recipes", json={"name": "Match2", "ingredients": ["milk", "sugar"], "steps": ["mix"]})
+
+    res = client.post("/api/match", json={"ingredients": ["egg", "flour", "butter"]})
+    assert res.status_code == 200
+    data = res.json()
+    assert "have" in data and "results" in data
+    # Match1 should have match True
+    found = next((r for r in data["results"] if r["name"] == "Match1"), None)
+    assert found is not None and found["match"] is True
+
+
+def test_match_synonyms_and_plural():
+    # aubergine should match eggplant via synonym map
+    client.post("/api/recipes", json={"name": "EggplantDish", "ingredients": ["eggplant", "salt"], "steps": ["cook"]})
+    # create recipe that requires only 'tomato' to test plural normalization
+    client.post("/api/recipes", json={"name": "TomatoSalad", "ingredients": ["tomato"], "steps": ["mix"]})
+
+    # provide 'aubergine' (UK) and 'tomatoes' (plural) in have list
+    res = client.post("/api/match", json={"ingredients": ["aubergine", "tomatoes", "salt"]})
+    assert res.status_code == 200
+    data = res.json()
+    names = {r["name"]: r for r in data["results"]}
+    assert "EggplantDish" in names and names["EggplantDish"]["match"] is True
+    assert "TomatoSalad" in names and names["TomatoSalad"]["match"] is True
+

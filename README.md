@@ -29,6 +29,16 @@ uvicorn src.app:app --reload
 
 Then open http://127.0.0.1:8000 in your browser.
 
+OpenAPI / Docs
+----------------
+
+FastAPI exposes interactive API docs at:
+
+- Swagger UI: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
+
+The JSON endpoints include example payloads visible in the docs.
+
 Which CI enhancements should I add next?
 
 Git

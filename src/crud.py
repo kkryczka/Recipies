@@ -15,6 +15,25 @@ def get_recipes(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Recipe).offset(skip).limit(limit).all()
 
 
+def count_recipes(db: Session):
+    return db.query(models.Recipe).count()
+
+
+def search_recipes(db: Session, q: str | None = None, skip: int = 0, limit: int = 100):
+    query = db.query(models.Recipe)
+    if q:
+        # case-insensitive match on name
+        query = query.filter(models.Recipe.name.ilike(f"%{q}%"))
+    return query.offset(skip).limit(limit).all()
+
+
+def count_recipes_filtered(db: Session, q: str | None = None):
+    query = db.query(models.Recipe)
+    if q:
+        query = query.filter(models.Recipe.name.ilike(f"%{q}%"))
+    return query.count()
+
+
 def create_recipe(db: Session, recipe: schemas.RecipeCreate):
     db_recipe = models.Recipe(
         name=recipe.name,
