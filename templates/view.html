@@ -5,24 +5,33 @@
     <title>{{ recipe.name }}</title>
   </head>
   <body>
-    <a href="/">Back</a>
-    <h1>{{ recipe.name }}</h1>
-    <h4>Ingredients</h4>
+  <a href="/">{{ back_label if back_label is defined else 'Back' }}</a>
+  <h1>{{ recipe.name }}</h1>
+    <form method="get" action="">
+      <label>Language: <select name="lang">
+        <option value="">(original)</option>
+        <option value="pl" {% if lang == 'pl' %}selected{% endif %}>Polish</option>
+        <option value="es" {% if lang == 'es' %}selected{% endif %}>Spanish</option>
+      </select></label>
+      <button type="submit">Translate</button>
+    </form>
+
+  <h4>{{ heading_ingredients if heading_ingredients is defined else 'Ingredients' }}</h4>
     <ul>
       {% for i in recipe.ingredients %}
       <li>{{ i }}</li>
       {% endfor %}
     </ul>
-    <h4>Steps</h4>
+  <h4>{{ heading_steps if heading_steps is defined else 'Steps' }}</h4>
     <ol>
       {% for s in recipe.steps %}
       <li>{{ s }}</li>
       {% endfor %}
     </ol>
     <p>
-      <a href="/recipes/{{ recipe.id }}/edit">Edit</a>
+      <a href="/recipes/{{ recipe.id }}/edit">{{ edit_label if edit_label is defined else 'Edit' }}</a>
       <form method="post" action="/recipes/{{ recipe.id }}/delete" style="display:inline">
-        <button type="submit">Delete</button>
+        <button type="submit">{{ delete_label if delete_label is defined else 'Delete' }}</button>
       </form>
     </p>
   </body>

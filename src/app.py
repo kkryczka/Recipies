@@ -10,6 +10,7 @@ from . import crud, models, schemas
 from .db import SessionLocal, init_db
 from typing import List
 from .normalize import normalize_ingredient, is_ingredient_match
+from .translate import translate_list, translate_text
 
 
 @asynccontextmanager
@@ -62,12 +63,22 @@ def read_root(request: Request, page: int = 1, page_size: int = 5, db: Session =
 
 
 @app.get("/recipes/{recipe_id}", response_class=HTMLResponse)
-def view_recipe(request: Request, recipe_id: int, db: Session = Depends(get_db)):
+def view_recipe(request: Request, recipe_id: int, lang: str | None = None, db: Session = Depends(get_db)):
     r = crud.get_recipe(db, recipe_id)
     if not r:
         raise HTTPException(status_code=404)
-    recipe = {"id": r.id, "name": r.name, "ingredients": json.loads(r.ingredients or '[]'), "steps": json.loads(r.steps or '[]')}
-    return templates.TemplateResponse(request, "view.html", {"recipe": recipe})
+    ings = json.loads(r.ingredients or '[]')
+    steps = json.loads(r.steps or '[]')
+    # translate if lang provided
+    t_ings = translate_list(ings, lang) if lang else ings
+    t_steps = translate_list(steps, lang) if lang else steps
+    recipe = {"id": r.id, "name": r.name, "ingredients": t_ings, "steps": t_steps}
+    heading_ingredients = translate_text("Ingredients", lang) if lang else "Ingredients"
+    heading_steps = translate_text("Steps", lang) if lang else "Steps"
+    back_label = translate_text("Back", lang) if lang else "Back"
+    edit_label = translate_text("Edit", lang) if lang else "Edit"
+    delete_label = translate_text("Delete", lang) if lang else "Delete"
+    return templates.TemplateResponse(request, "view.html", {"recipe": recipe, "lang": lang, "heading_ingredients": heading_ingredients, "heading_steps": heading_steps, "back_label": back_label, "edit_label": edit_label, "delete_label": delete_label})
 
 
 @app.get("/recipes/{recipe_id}/edit", response_class=HTMLResponse)
