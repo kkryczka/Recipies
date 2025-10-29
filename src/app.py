@@ -204,13 +204,27 @@ def api_match(payload: dict, db: Session = Depends(get_db)):
     all_recipes = crud.get_recipes(db, skip=0, limit=1000)
     for r in all_recipes:
         r_ings = json.loads(r.ingredients) if r.ingredients else []
+        matched = []
         missing = []
         for i in r_ings:
-            if not is_ingredient_match(i, have):
+            if is_ingredient_match(i, have):
+                matched.append(i)
+            else:
                 missing.append(i)
-        results.append({"id": r.id, "name": r.name, "missing": missing, "missing_count": len(missing), "match": len(missing) == 0})
-    # sort with matches first then by missing count and name
-    results.sort(key=lambda x: (0 if x["match"] else 1, x["missing_count"], x["name"]))
+        # Only include recipes that have at least one matched ingredient from the user's list
+        if not matched:
+            continue
+        results.append({
+            "id": r.id,
+            "name": r.name,
+            "matched": matched,
+            "matched_count": len(matched),
+            "missing": missing,
+            "missing_count": len(missing),
+            "match": len(missing) == 0,
+        })
+    # sort by matched_count (desc), then missing_count (asc), then name
+    results.sort(key=lambda x: (-x["matched_count"], x["missing_count"], x["name"]))
     return {"have": sorted(list(have)), "results": results}
 
 
