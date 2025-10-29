@@ -42,24 +42,9 @@ def get_db():
 
 
 @app.get("/", response_class=HTMLResponse)
-def read_root(request: Request, page: int = 1, page_size: int = 5, db: Session = Depends(get_db)):
-    # pagination
-    page = max(1, page)
-    page_size = max(1, min(100, page_size))
-    skip = (page - 1) * page_size
-    total = crud.count_recipes(db)
-    recipes = crud.get_recipes(db, skip=skip, limit=page_size)
-    # decode JSON fields for template
-    out = []
-    for r in recipes:
-        out.append({
-            "id": r.id,
-            "name": r.name,
-            "ingredients": json.loads(r.ingredients) if r.ingredients else [],
-            "steps": json.loads(r.steps) if r.steps else [],
-        })
-    pages = (total + page_size - 1) // page_size
-    return templates.TemplateResponse(request, "index.html", {"recipes": out, "page": page, "pages": pages})
+def read_root(request: Request):
+    # Serve match UI at root so match is the index page
+    return templates.TemplateResponse(request, "match.html", {"have_text": "", "results": None})
 
 
 @app.get("/recipes/{recipe_id}", response_class=HTMLResponse)

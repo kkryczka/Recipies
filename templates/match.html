@@ -17,7 +17,7 @@
     <ul>
       {% for r in results.results %}
       <li>
-        <strong>{{ r.name }}</strong>
+        <strong><a href="/recipes/{{ r.id }}">{{ r.name }}</a></strong>
         {% if r.match %}
           — <em>All ingredients available</em>
         {% else %}
