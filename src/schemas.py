@@ -8,9 +8,23 @@ except Exception:
 
 
 class RecipeBase(BaseModel):
-    name: str = Field(..., json_schema_extra={"example": "Simple Pancakes"})
-    ingredients: Optional[List[str]] = Field(default_factory=list, json_schema_extra={"example": ["flour", "milk", "egg"]})
-    steps: Optional[List[str]] = Field(default_factory=list, json_schema_extra={"example": ["Mix dry ingredients", "Add wet ingredients", "Cook on skillet until golden"]})
+    name: str = Field(
+        ..., json_schema_extra={"example": "Simple Pancakes"}
+    )
+    ingredients: Optional[List[str]] = Field(
+        default_factory=list,
+        json_schema_extra={"example": ["flour", "milk", "egg"]},
+    )
+    steps: Optional[List[str]] = Field(
+        default_factory=list,
+        json_schema_extra={
+            "example": [
+                "Mix dry ingredients",
+                "Add wet ingredients",
+                "Cook on skillet until golden",
+            ]
+        },
+    )
 
 
 class RecipeCreate(RecipeBase):

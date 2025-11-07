@@ -1,7 +1,8 @@
 from typing import List
 
 # Very small built-in translation dictionaries for demo purposes.
-# Keys are language codes (ISO 639-1) -> mapping of English phrase -> translated phrase.
+# Keys are language codes (ISO 639-1) -> mapping of English phrase ->
+# translated phrase.
 TRANSLATIONS = {
     "pl": {
         "Ingredients": "Składniki",
@@ -37,7 +38,8 @@ def translate_text(text: str, lang: str) -> str:
     mapping = TRANSLATIONS.get(lang)
     if not mapping:
         return text
-    # simple token-based translation: try lowercase lookup, otherwise title-case for headings
+    # simple token-based translation: try lowercase lookup, otherwise
+    # title-case for headings
     key = text.strip()
     lower = key.lower()
     if lower in mapping:

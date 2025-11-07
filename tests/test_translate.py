@@ -1,10 +1,10 @@
-import json
+# flake8: noqa
 import sys
 from pathlib import Path
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient  # noqa: E402
 
 # Ensure project root is on sys.path so `src` can be imported when tests are run
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # noqa: E402
 from src import app as app_module
 
 

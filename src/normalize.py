@@ -36,7 +36,9 @@ def normalize_ingredient(s: str) -> str:
     return w
 
 
-def is_ingredient_match(recipe_ing: str, have_set: set, cutoff: float = 0.8) -> bool:
+def is_ingredient_match(
+    recipe_ing: str, have_set: set, cutoff: float = 0.8
+) -> bool:
     # normalize recipe ingredient
     r = normalize_ingredient(recipe_ing)
     if not r:
@@ -46,5 +48,7 @@ def is_ingredient_match(recipe_ing: str, have_set: set, cutoff: float = 0.8) -> 
     # fuzzy match against have_set
     if not have_set:
         return False
-    matches = get_close_matches(r, list(have_set), n=1, cutoff=cutoff)
+    matches = get_close_matches(
+        r, list(have_set), n=1, cutoff=cutoff
+    )
     return len(matches) > 0

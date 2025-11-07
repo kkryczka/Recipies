@@ -4,7 +4,9 @@ from . import models, schemas
 
 
 def get_recipe(db: Session, recipe_id: int):
-    return db.query(models.Recipe).filter(models.Recipe.id == recipe_id).first()
+    return (
+        db.query(models.Recipe).filter(models.Recipe.id == recipe_id).first()
+    )
 
 
 def get_recipe_by_name(db: Session, name: str):
@@ -19,7 +21,9 @@ def count_recipes(db: Session):
     return db.query(models.Recipe).count()
 
 
-def search_recipes(db: Session, q: str | None = None, skip: int = 0, limit: int = 100):
+def search_recipes(
+    db: Session, q: str | None = None, skip: int = 0, limit: int = 100
+):
     query = db.query(models.Recipe)
     if q:
         # case-insensitive match on name

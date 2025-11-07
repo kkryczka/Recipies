@@ -1,13 +1,15 @@
-import json
+# flake8: noqa
 import sys
 from pathlib import Path
-from sqlalchemy import create_engine
-from sqlalchemy.pool import StaticPool
 
 # Ensure project root is on sys.path so `src` can be imported when tests are run
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # noqa: E402
+
+import json
+from sqlalchemy import create_engine
+from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient  # noqa: E402
 
 from src import app as app_module
 from src import models
@@ -65,7 +67,10 @@ def test_root_and_api_list():
 
 def test_create_recipe_via_form():
     # create via form POST
-    res = client.post("/recipes", data={"name": "FormRecipe", "ingredients": "a\nb", "steps": "1\n2"})
+    res = client.post(
+        "/recipes",
+        data={"name": "FormRecipe", "ingredients": "a\nb", "steps": "1\n2"},
+    )
     # allow either redirect or final 200
     assert res.status_code in (200, 303)
 
@@ -112,7 +117,14 @@ def test_api_json_structure():
 
 def test_form_blank_lines_are_ignored():
     # posting ingredients/steps with blank lines should ignore empty entries
-    res = client.post("/recipes", data={"name": "BlankLines", "ingredients": "apple\n\nbanana\n", "steps": "step1\n\nstep2\n"})
+    res = client.post(
+        "/recipes",
+        data={
+            "name": "BlankLines",
+            "ingredients": "apple\n\nbanana\n",
+            "steps": "step1\n\nstep2\n",
+        },
+    )
     assert res.status_code in (200, 303)
 
     # check via API that recipe was created

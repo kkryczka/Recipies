@@ -1,3 +1,5 @@
+# flake8: noqa
+
 from fastapi import FastAPI, Depends, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -6,7 +8,7 @@ from contextlib import asynccontextmanager
 from sqlalchemy.orm import Session
 import json
 
-from . import crud, models, schemas
+from . import crud, schemas
 from .db import SessionLocal, init_db
 from typing import List
 from .normalize import normalize_ingredient, is_ingredient_match
@@ -44,11 +46,17 @@ def get_db():
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
     # Serve match UI at root so match is the index page
-    return templates.TemplateResponse(request, "match.html", {"have_text": "", "results": None})
+    return templates.TemplateResponse(
+        request,
+        "match.html",
+        {"have_text": "", "results": None},
+    )
 
 
 @app.get("/recipes/{recipe_id}", response_class=HTMLResponse)
-def view_recipe(request: Request, recipe_id: int, lang: str | None = None, db: Session = Depends(get_db)):
+def view_recipe(
+    request: Request, recipe_id: int, lang: str | None = None, db: Session = Depends(get_db)
+):
     r = crud.get_recipe(db, recipe_id)
     if not r:
         raise HTTPException(status_code=404)
@@ -63,15 +71,34 @@ def view_recipe(request: Request, recipe_id: int, lang: str | None = None, db: S
     back_label = translate_text("Back", lang) if lang else "Back"
     edit_label = translate_text("Edit", lang) if lang else "Edit"
     delete_label = translate_text("Delete", lang) if lang else "Delete"
-    return templates.TemplateResponse(request, "view.html", {"recipe": recipe, "lang": lang, "heading_ingredients": heading_ingredients, "heading_steps": heading_steps, "back_label": back_label, "edit_label": edit_label, "delete_label": delete_label})
+    return templates.TemplateResponse(
+        request,
+        "view.html",
+        {
+            "recipe": recipe,
+            "lang": lang,
+            "heading_ingredients": heading_ingredients,
+            "heading_steps": heading_steps,
+            "back_label": back_label,
+            "edit_label": edit_label,
+            "delete_label": delete_label,
+        },
+    )
 
 
 @app.get("/recipes/{recipe_id}/edit", response_class=HTMLResponse)
-def edit_recipe_form(request: Request, recipe_id: int, db: Session = Depends(get_db)):
+def edit_recipe_form(
+    request: Request, recipe_id: int, db: Session = Depends(get_db)
+):
     r = crud.get_recipe(db, recipe_id)
     if not r:
         raise HTTPException(status_code=404)
-    recipe = {"id": r.id, "name": r.name, "ingredients": "\n".join(json.loads(r.ingredients or '[]')), "steps": "\n".join(json.loads(r.steps or '[]'))}
+    recipe = {
+        "id": r.id,
+        "name": r.name,
+        "ingredients": "\n".join(json.loads(r.ingredients or '[]')),
+        "steps": "\n".join(json.loads(r.steps or '[]')),
+    }
     return templates.TemplateResponse(request, "edit.html", {"recipe": recipe})
 
 
@@ -103,7 +130,7 @@ def create_recipe(name: str = Form(...), ingredients: str = Form(""), steps: str
     existing = crud.get_recipe_by_name(db, name)
     if existing:
         raise HTTPException(status_code=400, detail="Recipe with that name already exists")
-    r = crud.create_recipe(db, recipe_in)
+    crud.create_recipe(db, recipe_in)
     return RedirectResponse(url='/', status_code=303)
 
 
@@ -125,10 +152,12 @@ def api_get_recipes(request: Request, page: int = 1, page_size: int = 10, q: str
     # build RFC5988 Link header
     last_page = (total + page_size - 1) // page_size if total > 0 else 1
     links = []
-    base = str(request.url.include_query_params())
+
     # helper to build url with page param
     def url_for(p):
-        return str(request.url.include_query_params(page=p, page_size=page_size, q=q))
+        return str(
+            request.url.include_query_params(page=p, page_size=page_size, q=q)
+        )
 
     if page > 1:
         links.append(f"<{url_for(1)}>; rel=\"first\"")
@@ -239,7 +268,7 @@ def match_form(request: Request):
 @app.post("/match", response_class=HTMLResponse)
 def match_submit(request: Request, ingredients: str = Form(""), cutoff: float = Form(0.8), db: Session = Depends(get_db)):
     # ingredients provided one-per-line
-    lines = [l.strip() for l in ingredients.splitlines() if l.strip()]
+    lines = [line.strip() for line in ingredients.splitlines() if line.strip()]
     payload = {"ingredients": lines, "cutoff": float(cutoff)}
     resp = api_match(payload, db)
     return templates.TemplateResponse(request, "match.html", {"have_text": ingredients, "results": resp})

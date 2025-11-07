@@ -18,10 +18,18 @@ def main():
         name = r.get('name')
         if not name:
             continue
-        exists = db.query(models.Recipe).filter(models.Recipe.name == name).first()
+        exists = (
+            db.query(models.Recipe)
+            .filter(models.Recipe.name == name)
+            .first()
+        )
         if exists:
             continue
-        recipe = models.Recipe(name=name, ingredients=json.dumps(r.get('ingredients', [])), steps=json.dumps(r.get('steps', [])))
+        recipe = models.Recipe(
+            name=name,
+            ingredients=json.dumps(r.get('ingredients', [])),
+            steps=json.dumps(r.get('steps', [])),
+        )
         db.add(recipe)
         added += 1
     db.commit()
