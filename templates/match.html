@@ -1,31 +1,127 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Match recipes</title>
-  </head>
-  <body>
-    <a href="/">Back</a>
-    <h1>Find recipes from what you have</h1>
-    <form method="post" action="/match">
-      <label>Ingredients you have (one per line)<br /><textarea name="ingredients" rows="6">{{ have_text }}</textarea></label><br /><br />
-      <button type="submit">Find</button>
-    </form>
+{% extends 'base.html' %}
 
-    {% if results %}
-    <h2>Results (you have: {{ results.have | join(', ') }})</h2>
-    <ul>
-      {% for r in results.results %}
-      <li>
-        <strong><a href="/recipes/{{ r.id }}">{{ r.name }}</a></strong>
-        {% if r.match %}
-          — <em>All ingredients available</em>
-        {% else %}
-          — Missing ({{ r.missing_count }}): {{ r.missing | join(', ') }}
-        {% endif %}
-      </li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  </body>
-</html>
+{% block title %}Match recipes{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-6">
+      <h1>Find recipes from what you have</h1>
+      <form method="post" action="/match">
+        <div class="mb-3">
+          <label class="form-label">Ingredients you have (one per line)</label>
+            <textarea class="form-control" name="ingredients" rows="6">{{ have_text }}</textarea>
+        </div>
+          <div class="mb-3">
+              <label class="form-label">Fuzzy match sensitivity: <span id="cutoffVal">{{ cutoff }}</span>
+                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="Higher values make matching stricter (exact-like). Lower values allow looser fuzzy matches; this helps match similar words.">i</button>
+              </label>
+              <input type="range" class="form-range" min="0.5" max="1.0" step="0.01" name="cutoff" id="cutoff" value="{{ cutoff }}">
+            </div>
+            <div class="mb-3">
+              <button type="button" id="resetPrefs" class="btn btn-sm btn-warning">Reset preferences</button>
+            </div>
+          <button class="btn btn-primary" type="submit">Find</button>
+      </form>
+    </div>
+
+    <div class="col-md-6">
+      {% if results %}
+      <h3>Results <small class="text-muted">(you have: {{ results.have | join(', ') }})</small></h3>
+      <div class="list-group">
+        {% for r in results.results %}
+        <div class="list-group-item recipe-card">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1"><a href="/recipes/{{ r.id }}">{{ r.name }}</a></h5>
+            <small class="text-muted">matched: {{ r.matched_count }}</small>
+          </div>
+          <p class="mb-1">
+            {% if r.matched %}
+              Matched: {% for m in r.matched %}<span class="matched">{{ m }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
+            {% endif %}
+          </p>
+          <p class="mb-1">
+            {% if r.match %}
+              <span class="badge bg-success">All ingredients available</span>
+            {% else %}
+              Missing ({{ r.missing_count }}): {% for mm in r.missing %}<span class="missing">{{ mm }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
+            {% endif %}
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+  <!-- Toast container -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="prefsToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Preferences</strong>
+        <small>now</small>
+        <button type="button" class="btn-close ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Preferences reset to defaults.
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block head %}
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    var slider = document.getElementById('cutoff');
+    var out = document.getElementById('cutoffVal');
+    var storageKey = 'recipies.cutoff';
+  if (slider && out){
+      // load persisted value if available
+      try {
+        var stored = localStorage.getItem(storageKey);
+        if (stored !== null){
+          slider.value = stored;
+          out.textContent = stored;
+        } else {
+          out.textContent = slider.value;
+        }
+      } catch (e) {
+        out.textContent = slider.value;
+      }
+
+      slider.addEventListener('input', function(e){
+        out.textContent = e.target.value;
+        try { localStorage.setItem(storageKey, e.target.value); } catch (ex) { /* ignore */ }
+      });
+      // reset preferences button
+      var reset = document.getElementById('resetPrefs');
+      if (reset){
+        reset.addEventListener('click', function(){
+          try { localStorage.removeItem(storageKey); } catch (ex) {}
+          // reset slider to server default passed in template
+          var defaultVal = '{{ cutoff }}';
+          slider.value = defaultVal;
+          out.textContent = defaultVal;
+          // show confirmation toast
+          try {
+            var toastEl = document.getElementById('prefsToast');
+            if (toastEl){
+              var bt = new bootstrap.Toast(toastEl);
+              bt.show();
+            }
+          } catch (ex) { }
+        });
+      }
+    }
+
+    // initialize bootstrap tooltip
+    try {
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+      })
+    } catch (e) { }
+  });
+</script>
+{% endblock %}
+
+
