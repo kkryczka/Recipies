@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Recipies{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUa6zY1hYh4g7Z2b1QZ5Y1j6K9a2e1l1Z6b3K1rG1qX1F1K1H1" crossorigin="anonymous">
+    <style>
+      body { padding-top: 4.5rem; }
+      .recipe-card { margin-bottom: 1rem; }
+      .matched { color: #155724; font-weight: 600; }
+      .missing { color: #721c24; }
+      .nav-brand { font-weight: 700; }
+    </style>
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand nav-brand" href="/">Recipies</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarsExample07">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" href="/">Match</a></li>
+            <li class="nav-item"><a class="nav-link" href="/api/recipes?page=1&page_size=10">API</a></li>
+            <li class="nav-item"><a class="nav-link" href="/recipes">All Recipes</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoK6VfQ0h3j6v2p1n9Zl2qA6V1z1G1m" crossorigin="anonymous"></script>
+  </body>
+</html>

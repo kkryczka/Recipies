@@ -199,6 +199,9 @@ def api_match(payload: dict, db: Session = Depends(get_db)):
     ings = payload.get("ingredients") if isinstance(payload, dict) else None
     if not isinstance(ings, list):
         raise HTTPException(status_code=400, detail="'ingredients' must be a list of strings")
+    cutoff = float(payload.get("cutoff", 0.8)) if isinstance(payload, dict) else 0.8
+    if not (0.0 < cutoff <= 1.0):
+        raise HTTPException(status_code=400, detail="'cutoff' must be a float between 0 and 1")
     have = _normalize_ings(ings)
     results = []
     all_recipes = crud.get_recipes(db, skip=0, limit=1000)
@@ -207,7 +210,7 @@ def api_match(payload: dict, db: Session = Depends(get_db)):
         matched = []
         missing = []
         for i in r_ings:
-            if is_ingredient_match(i, have):
+            if is_ingredient_match(i, have, cutoff=cutoff):
                 matched.append(i)
             else:
                 missing.append(i)
@@ -230,13 +233,13 @@ def api_match(payload: dict, db: Session = Depends(get_db)):
 
 @app.get("/match", response_class=HTMLResponse)
 def match_form(request: Request):
-    return templates.TemplateResponse(request, "match.html", {"have_text": "", "results": None})
+    return templates.TemplateResponse(request, "match.html", {"have_text": "", "results": None, "cutoff": 0.8})
 
 
 @app.post("/match", response_class=HTMLResponse)
-def match_submit(request: Request, ingredients: str = Form(""), db: Session = Depends(get_db)):
+def match_submit(request: Request, ingredients: str = Form(""), cutoff: float = Form(0.8), db: Session = Depends(get_db)):
     # ingredients provided one-per-line
     lines = [l.strip() for l in ingredients.splitlines() if l.strip()]
-    payload = {"ingredients": lines}
+    payload = {"ingredients": lines, "cutoff": float(cutoff)}
     resp = api_match(payload, db)
     return templates.TemplateResponse(request, "match.html", {"have_text": ingredients, "results": resp})
