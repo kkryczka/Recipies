@@ -1,0 +1,104 @@
+/* Minimal hero styles to match wireframe: prominent heading, large input with rounded edges,
+   warm accent button, and responsive behavior. Kept small so it works offline. */
+:root{
+  --accent: #2f9e44; /* primary green */
+  --accent-hover: #42b983;
+  --accent-contrast: #ffffff;
+  --nav-bg: #343a40;
+  --heading-color: #111111;
+}
+/* Remove underlines on links for the wireframe look */
+a, a:visited, a:hover, a:active { text-decoration: none !important; color: inherit; }
+.nav-link { text-decoration: none !important; }
+.container{max-width:980px;margin:0 auto;padding:0 18px}
+body{font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;background:#f6f7f8;color:#222}
+.hero-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:48px;border-radius:12px;background:linear-gradient(135deg,#2f9e44 0%,#42b983 100%);color:#fff;margin-bottom:36px}
+.hero-hero .hero-left{flex:1;max-width:720px;text-align:center}
+.hero-hero h1{font-family: 'Playfair Display', serif;font-size:40px;line-height:1.05;margin:0 0 12px;color:#fff;font-weight:700}
+.hero-sub{opacity:0.95;margin-bottom:18px}
+
+@media (min-width:720px){
+  .hero-hero .hero-left{ text-align:left }
+  /* add left margin to match wireframe spacing (3x previous) */
+  .hero-hero .hero-left{ margin-left:36px }
+}
+.btn-start{background:rgba(255,255,255,0.14);color:#fff;border-radius:8px;padding:10px 16px;border:none}
+.hero-illustration img{width:220px;height:auto;border-radius:12px}
+
+/* smooth transitions for accent changes */
+.btn, .find-btn, .quick-pills .btn, .chip { transition: all 160ms ease-in-out; }
+
+/* hover accent behavior */
+.find-btn:hover { background: var(--accent-hover); }
+.btn-start:hover { background: rgba(255,255,255,0.22); }
+.quick-pills .btn:hover { background: var(--accent-hover); color: var(--accent-contrast); border-color: var(--accent-hover); }
+.navbar-nav .nav-link:hover { color: var(--accent-hover) !important; }
+.chip:hover { box-shadow: 0 6px 18px rgba(47,158,68,0.08); transform: translateY(-2px); }
+
+/* Search card */
+.search-card{background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(16,24,40,0.06);margin-bottom:28px}
+.search-card .card-body{padding:28px}
+.card-title{margin:0 0 6px;font-family:'Playfair Display',serif}
+.card-sub{color:#6c757d;margin-bottom:16px}
+.search-card .card-body{ text-align:center }
+.input-row{display:flex;gap:12px;justify-content:center}
+.input-row .search-input{flex:1;padding:12px 14px;border-radius:8px;border:1px solid #eaecef;max-width:650px}
+
+/* Wrap controls so heading/input can be centered while internal controls are left-aligned under the input */
+.controls-wrap{display:flex;flex-direction:column;align-items:center;width:100%}
+/* center the input-row itself, then make the following controls match its max-width */
+.controls-wrap > .input-row{width:100%;max-width:700px;margin:0 auto}
+.controls-wrap #suggestions,.controls-wrap #chipsRow,.controls-wrap .quick-add{max-width:700px;margin:8px auto 0 auto;text-align:left;width:100%}
+.controls-wrap .quick-add .quick-pills{justify-content:flex-start}
+.find-btn{background:var(--accent);color:#fff;border-radius:8px;padding:10px 14px;border:none}
+.find-btn img{filter:invert(100%)}
+
+.chips-row{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:#e9f8ef;color:#155724;border-radius:20px;padding:6px 10px;font-size:14px;display:inline-flex;align-items:center;opacity:0;transform:translateY(-6px);animation:chip-in 260ms ease forwards}
+.chip .chip-x{background:transparent;border:none;margin-left:8px;color:inherit}
+
+@keyframes chip-in{from{opacity:0;transform:translateY(-6px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes chip-out{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-6px) scale(0.96)}}
+.chip.removing{animation:chip-out 260ms ease forwards}
+
+.quick-add{margin-top:12px}
+.quick-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.quick-pills .btn{border-radius:16px}
+
+/* suggestions dropdown */
+.suggestions{position:relative;margin-top:6px}
+.suggestions .suggestion-item{background:#fff;border-radius:6px;padding:8px 10px;border:1px solid #e9ecef;box-shadow:0 6px 18px rgba(16,24,40,0.06);cursor:pointer}
+.suggestions .suggestion-item + .suggestion-item{margin-top:6px}
+.suggestions .suggestion-item.active{background:#e8f8ef;border-color:var(--accent)}
+
+/* Results grid */
+.results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:18px}
+.recipe-tile{overflow:hidden;border-radius:12px}
+.recipe-tile{position:relative}
+.stretched-link{position:absolute;inset:0;z-index:2}
+.recipe-tile{cursor:pointer}
+.recipe-thumb{width:100%;height:160px;object-fit:cover;display:block}
+.recipe-tile .card-body{padding:12px}
+.recipe-tile .card-title{font-size:1.05rem;margin:0 0 6px}
+.recipe-tile .card-text{margin-bottom:10px}
+
+/* Button icon */
+.search-btn svg{width:18px;height:18px;vertical-align:middle;margin-right:8px;fill:currentColor}
+
+/* Illustration to the right on wide screens */
+.hero-illustration{display:none}
+@media (min-width:1000px){
+  .hero-hero{padding:48px}
+  .hero-illustration img{width:320px}
+}
+
+/* Make hero stack vertically on narrow screens */
+@media (max-width:720px){
+  .hero-hero{flex-direction:column;align-items:flex-start}
+  .hero-illustration img{width:100%;max-width:320px;margin-top:12px}
+  .input-row{flex-direction:column}
+  .find-btn{width:100%}
+}
+
+/* Controls layout: kept minimal; cutoff slider removed */
+.controls-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;max-width:900px;margin:0 auto}

@@ -5,121 +5,327 @@
 {% block content %}
   <div class="row">
     <div class="col-md-6">
-      <h1>Find recipes from what you have</h1>
-      <form method="post" action="/match">
-        <div class="mb-3">
-          <label class="form-label">Ingredients you have (one per line)</label>
-            <textarea class="form-control" name="ingredients" rows="6">{{ have_text }}</textarea>
+      <div class="hero hero-hero">
+        <div class="hero-left">
+          <h1>Find Perfect Recipes with Your Ingredients</h1>
+          <p class="hero-sub">Enter the ingredients you have at home and discover delicious recipes you can make recipes<br>you can make right now. No more wondering what to cook!</p>
+          <a class="btn btn-light btn-start" href="#search-card">Start Cooking</a>
         </div>
-          <div class="mb-3">
-              <label class="form-label">Fuzzy match sensitivity: <span id="cutoffVal">{{ cutoff }}</span>
-                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="Higher values make matching stricter (exact-like). Lower values allow looser fuzzy matches; this helps match similar words.">i</button>
-              </label>
-              <input type="range" class="form-range" min="0.5" max="1.0" step="0.01" name="cutoff" id="cutoff" value="{{ cutoff }}">
+        <div class="hero-illustration">
+          <img src="/static/img/hero-illustration.svg" alt="illustration" aria-hidden="true">
+        </div>
+      </div>
+
+      <!-- Search card -->
+      <div id="search-card" class="search-card card">
+        <div class="card-body">
+          <h3 class="card-title">What's in Your Kitchen?</h3>
+          <p class="card-sub">Add the ingredients you have available and we'll find recipes for you</p>
+
+
+          <form method="post" action="/match" id="matchForm">
+            <div class="controls-wrap">
+              <div class="input-row">
+                <input id="searchInput" class="search-input form-control" type="text" placeholder="Enter an ingredient (e.g., chicken, tomatoes, rice)" aria-label="Ingredients" value="{{ have_text | replace('\n', ', ') }}">
+                <button type="button" id="addChipBtn" class="btn btn-outline-secondary">+</button>
+                <button class="btn btn-success find-btn" type="submit">
+                  <img src="/static/img/search-icon.svg" alt="" aria-hidden="true" style="width:16px;height:16px;margin-right:8px;vertical-align:middle;filter:invert(100%);">
+                  Find Recipes
+                </button>
+              </div>
+              <div id="suggestions" class="suggestions" role="listbox" aria-label="Ingredient suggestions" hidden></div>
+
+              <!-- chips area (dynamic) -->
+              <div id="chipsRow" class="chips-row" aria-live="polite" aria-atomic="true"></div>
+
+              <!-- quick add pills -->
+              <div class="quick-add">
+                <small class="text-muted">Quick add common ingredients:</small>
+                <div class="quick-pills">
+                  <button type="button" class="btn btn-outline-secondary btn-sm">Eggs</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm">Milk</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm">Flour</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm">Pasta</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm">Rice</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm">Olive Oil</button>
+                </div>
+              </div>
+
+              <!-- Hidden textarea kept for server compatibility; we'll copy values into it on submit -->
+              <textarea name="ingredients" id="hiddenIngredients" style="display:none;">{{ have_text }}</textarea>
             </div>
-            <div class="mb-3">
-              <button type="button" id="resetPrefs" class="btn btn-sm btn-warning">Reset preferences</button>
-            </div>
-          <button class="btn btn-primary" type="submit">Find</button>
-      </form>
+          </form>
+        </div>
+      </div>
+
     </div>
 
     <div class="col-md-6">
       {% if results %}
       <h3>Results <small class="text-muted">(you have: {{ results.have | join(', ') }})</small></h3>
-      <div class="list-group">
+      <div class="results-grid">
         {% for r in results.results %}
-        <div class="list-group-item recipe-card">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1"><a href="/recipes/{{ r.id }}">{{ r.name }}</a></h5>
-            <small class="text-muted">matched: {{ r.matched_count }}</small>
+        <div class="recipe-tile card">
+          <img class="recipe-thumb" src="/static/img/recipe-{{ loop.index if loop.index <=3 else 1 }}.svg" alt="{{ r.name }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ r.name }}</h5>
+            <a class="stretched-link" href="/recipes/{{ r.id }}" aria-label="Open {{ r.name }}"></a>
+            <p class="card-text text-muted small">{% if r.matched %}Matched: {% for m in r.matched %}<span class="matched">{{ m }}</span>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              {% if r.match %}<span class="badge bg-success">All ingredients available</span>{% else %}<small class="text-muted">Missing {{ r.missing_count }}</small>{% endif %}
+              <small class="text-muted">{{ r.matched_count }} matched</small>
+            </div>
           </div>
-          <p class="mb-1">
-            {% if r.matched %}
-              Matched: {% for m in r.matched %}<span class="matched">{{ m }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
-            {% endif %}
-          </p>
-          <p class="mb-1">
-            {% if r.match %}
-              <span class="badge bg-success">All ingredients available</span>
-            {% else %}
-              Missing ({{ r.missing_count }}): {% for mm in r.missing %}<span class="missing">{{ mm }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
-            {% endif %}
-          </p>
         </div>
         {% endfor %}
+      </div>
+      {% else %}
+      <!-- Demo grid when no results -->
+      <h3>Recipes You Can Make (demo)</h3>
+      <div class="results-grid">
+        <div class="recipe-tile card">
+          <img class="recipe-thumb" src="/static/img/recipe-1.svg" alt="Chicken Tomato Pasta">
+          <div class="card-body">
+            <h5 class="card-title">Chicken Tomato Pasta</h5>
+            <a class="stretched-link" href="/recipes/1" aria-label="Open Chicken Tomato Pasta"></a>
+            <p class="card-text text-muted small">A delicious and easy pasta dish with chicken, tomatoes, and herbs.</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge bg-success">95% Match</span>
+              <small class="text-muted">4.8 ★</small>
+            </div>
+          </div>
+        </div>
+        <div class="recipe-tile card">
+          <img class="recipe-thumb" src="/static/img/recipe-2.svg" alt="Herb Grilled Chicken">
+          <div class="card-body">
+            <h5 class="card-title">Herb Grilled Chicken</h5>
+            <a class="stretched-link" href="/recipes/2" aria-label="Open Herb Grilled Chicken"></a>
+            <p class="card-text text-muted small">Perfectly seasoned grilled chicken with a medley of herbs.</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge bg-success">90% Match</span>
+              <small class="text-muted">4.6 ★</small>
+            </div>
+          </div>
+        </div>
+        <div class="recipe-tile card">
+          <img class="recipe-thumb" src="/static/img/recipe-3.svg" alt="Chicken Stir Fry">
+          <div class="card-body">
+            <h5 class="card-title">Chicken Stir Fry</h5>
+            <a class="stretched-link" href="/recipes/3" aria-label="Open Chicken Stir Fry"></a>
+            <p class="card-text text-muted small">A quick and flavorful stir fry with vegetables and tangy sauce.</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge bg-warning text-dark">85% Match</span>
+              <small class="text-muted">4.7 ★</small>
+            </div>
+          </div>
+        </div>
       </div>
       {% endif %}
     </div>
 
-  <!-- Toast container -->
-  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-    <div id="prefsToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header">
-        <strong class="me-auto">Preferences</strong>
-        <small>now</small>
-        <button type="button" class="btn-close ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div class="toast-body">
-        Preferences reset to defaults.
-      </div>
-    </div>
-  </div>
+  
 
 {% endblock %}
 
 {% block head %}
 <script>
   document.addEventListener('DOMContentLoaded', function(){
-    var slider = document.getElementById('cutoff');
-    var out = document.getElementById('cutoffVal');
-    var storageKey = 'recipies.cutoff';
-  if (slider && out){
-      // load persisted value if available
-      try {
-        var stored = localStorage.getItem(storageKey);
-        if (stored !== null){
-          slider.value = stored;
-          out.textContent = stored;
-        } else {
-          out.textContent = slider.value;
-        }
-      } catch (e) {
-        out.textContent = slider.value;
-      }
-
-      slider.addEventListener('input', function(e){
-        out.textContent = e.target.value;
-        try { localStorage.setItem(storageKey, e.target.value); } catch (ex) { /* ignore */ }
-      });
-      // reset preferences button
-      var reset = document.getElementById('resetPrefs');
-      if (reset){
-        reset.addEventListener('click', function(){
-          try { localStorage.removeItem(storageKey); } catch (ex) {}
-          // reset slider to server default passed in template
-          var defaultVal = '{{ cutoff }}';
-          slider.value = defaultVal;
-          out.textContent = defaultVal;
-          // show confirmation toast
-          try {
-            var toastEl = document.getElementById('prefsToast');
-            if (toastEl){
-              var bt = new bootstrap.Toast(toastEl);
-              bt.show();
-            }
-          } catch (ex) { }
-        });
-      }
+    // copy comma-separated single-line input into newline-separated hidden textarea
+    var searchInput = document.getElementById('searchInput');
+    var hiddenIngredients = document.getElementById('hiddenIngredients');
+    var matchForm = document.getElementById('matchForm');
+    // helper to read/write hidden textarea as newline-separated list
+    var chipsRow = document.getElementById('chipsRow');
+    function getHiddenList(){
+      return (hiddenIngredients && hiddenIngredients.value) ? hiddenIngredients.value.split('\n').map(function(s){ return s.trim(); }).filter(Boolean) : [];
+    }
+    function setHiddenList(list){
+      if (hiddenIngredients){ hiddenIngredients.value = list.join('\n'); }
     }
 
-    // initialize bootstrap tooltip
-    try {
-      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-      })
-    } catch (e) { }
+    function removeChipAnimated(item, spanEl){
+      if (!spanEl) return;
+      // mark for removal to trigger CSS animation
+      spanEl.classList.add('removing');
+      // when animation completes, update hidden list and re-render
+      var handled = false;
+      var onEnd = function(){
+        if (handled) return; handled = true;
+        spanEl.removeEventListener('animationend', onEnd);
+        var newList = getHiddenList().filter(function(x){ return x !== item; });
+        setHiddenList(newList);
+        renderChips();
+      };
+      spanEl.addEventListener('animationend', onEnd);
+      // safety fallback
+      setTimeout(onEnd, 400);
+    }
+
+    function renderChips(){
+      if (!chipsRow) return;
+      chipsRow.innerHTML = '';
+      var list = getHiddenList();
+      list.forEach(function(item){
+        var span = document.createElement('span');
+        span.className = 'chip';
+        span.textContent = item + ' ';
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'chip-x';
+  btn.setAttribute('aria-label','remove '+item);
+        btn.textContent = '✕';
+        btn.addEventListener('click', function(){
+          // animate removal then update list
+          removeChipAnimated(item, span);
+        });
+        span.appendChild(btn);
+        chipsRow.appendChild(span);
+      });
+    }
+
+    // initialize chips from server-provided hidden textarea
+    renderChips();
+
+    // ------------------ Autocomplete / suggestions ------------------
+    var suggestionsEl = document.getElementById('suggestions');
+    // small built-in suggestions list - extend or fetch from server if needed
+    var SUGGESTIONS = [
+      'eggs','milk','flour','pasta','rice','tomato','tomatoes','onion','onions','garlic','olive oil','butter','cheese','chicken','chicken breast','beef','pork','tofu','potatoes','salt','pepper','basil','oregano','lemon'
+    ];
+    var activeIndex = -1;
+
+    function showSuggestions(list){
+      if (!suggestionsEl) return;
+      suggestionsEl.innerHTML = '';
+      if (!list || list.length === 0){ suggestionsEl.hidden = true; activeIndex = -1; return; }
+      list.slice(0,8).forEach(function(s, i){
+        var d = document.createElement('div');
+        d.className = 'suggestion-item';
+        d.setAttribute('role','option');
+        d.textContent = s;
+        d.addEventListener('click', function(){ addChip(s, true); hideSuggestions(); });
+        suggestionsEl.appendChild(d);
+      });
+      suggestionsEl.hidden = false; activeIndex = -1;
+    }
+
+    function hideSuggestions(){ if (suggestionsEl){ suggestionsEl.hidden = true; activeIndex = -1; } }
+
+    function updateSuggestions(q){
+      if (!q) { showSuggestions([]); return; }
+      var ql = q.toLowerCase();
+      var matched = SUGGESTIONS.filter(function(s){ return s.indexOf(ql) !== -1; });
+      // prefer prefix matches first
+      matched.sort(function(a,b){ var pa = a.indexOf(ql), pb = b.indexOf(ql); return pa - pb || a.localeCompare(b); });
+      showSuggestions(matched);
+    }
+
+    if (searchInput){
+      searchInput.addEventListener('input', function(){
+        updateSuggestions(searchInput.value.trim());
+      });
+      searchInput.addEventListener('keydown', function(ev){
+        // navigation when suggestions visible
+        if (suggestionsEl && !suggestionsEl.hidden){
+          var items = suggestionsEl.querySelectorAll('.suggestion-item');
+          if (ev.key === 'ArrowDown'){
+            ev.preventDefault(); activeIndex = Math.min(activeIndex+1, items.length-1); highlightSuggestion(items, activeIndex); return;
+          }
+          if (ev.key === 'ArrowUp'){
+            ev.preventDefault(); activeIndex = Math.max(activeIndex-1, 0); highlightSuggestion(items, activeIndex); return;
+          }
+          if (ev.key === 'Enter'){
+            // if a suggestion is highlighted, pick it, else fallthrough to add typed value (handled above)
+            if (activeIndex >= 0 && items[activeIndex]){ ev.preventDefault(); var val = items[activeIndex].textContent; addChip(val, true); hideSuggestions(); return; }
+          }
+          if (ev.key === 'Escape'){
+            hideSuggestions(); return;
+          }
+        }
+      });
+      // hide suggestions when losing focus (small timeout to allow click)
+      searchInput.addEventListener('blur', function(){ setTimeout(hideSuggestions, 150); });
+    }
+
+    function highlightSuggestion(items, idx){ items.forEach(function(it, i){ it.classList.toggle('active', i === idx); }); }
+
+    // helper to add a chip value programmatically
+    function addChip(val, clearInput){
+      if (!val) return;
+      var v = val.trim();
+      if (!v) return;
+      var cur = getHiddenList();
+      if (cur.indexOf(v) === -1) cur.push(v);
+      setHiddenList(cur);
+      renderChips();
+      if (clearInput && searchInput){ searchInput.value = ''; searchInput.focus(); }
+    }
+
+    if (matchForm){
+      matchForm.addEventListener('submit', function(e){
+        // when submitting, ensure hidden textarea matches chips + any typed input
+        var typed = (searchInput && searchInput.value) ? searchInput.value.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
+        var list = getHiddenList().concat(typed);
+        // dedupe while preserving order
+        var seen = new Set();
+        var dedup = [];
+        list.forEach(function(x){ if (!seen.has(x)){ seen.add(x); dedup.push(x); } });
+        setHiddenList(dedup);
+      });
+    }
+
+    // Add chip button
+    var addChipBtn = document.getElementById('addChipBtn');
+    if (addChipBtn){
+      addChipBtn.addEventListener('click', function(){
+        addChip(searchInput && searchInput.value, true);
+      });
+    }
+
+    // keyboard interactions: Enter to add, Backspace (when empty) to remove last
+    if (searchInput){
+      searchInput.addEventListener('keydown', function(ev){
+        if (ev.key === 'Enter'){
+          ev.preventDefault();
+          addChip(searchInput.value, true);
+        } else if (ev.key === 'Backspace'){
+          var val = searchInput.value || '';
+          if (val.trim() === ''){
+            var cur = getHiddenList();
+            if (cur.length > 0){
+              cur.pop();
+              setHiddenList(cur);
+              renderChips();
+            }
+          }
+        }
+      });
+    }
+      // Make recipe tiles clickable (fallback if stretched-link CSS isn't applied)
+      function wireTileClicks(){
+        var tiles = document.querySelectorAll('.recipe-tile');
+        tiles.forEach(function(tile){
+          tile.style.cursor = 'pointer';
+          tile.addEventListener('click', function(e){
+            // ignore clicks originating from buttons inside the tile
+            var btn = e.target.closest('button');
+            if (btn) return;
+            var a = tile.querySelector('a.stretched-link');
+            if (a && a.href){
+              window.location.href = a.href;
+            }
+          });
+        });
+      }
+      wireTileClicks();
+
+    // quick-add pills
+    var quickPills = document.querySelectorAll('.quick-pills .btn');
+    quickPills.forEach(function(p){
+      p.addEventListener('click', function(){
+        addChip(p.textContent.trim(), false);
+      });
+    });
   });
 </script>
 {% endblock %}

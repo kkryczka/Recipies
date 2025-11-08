@@ -1,4 +1,4 @@
-from difflib import get_close_matches
+# No fuzzy matching: exact normalized matches only
 
 # Small synonyms map: variant -> canonical
 SYNONYMS = {
@@ -36,19 +36,13 @@ def normalize_ingredient(s: str) -> str:
     return w
 
 
-def is_ingredient_match(
-    recipe_ing: str, have_set: set, cutoff: float = 0.8
-) -> bool:
-    # normalize recipe ingredient
+def is_ingredient_match(recipe_ing: str, have_set: set) -> bool:
+    """Return True if the normalized recipe ingredient is present in have_set.
+
+    This intentionally avoids fuzzy matching. Only exact (normalized) matches
+    are considered a match.
+    """
     r = normalize_ingredient(recipe_ing)
     if not r:
         return False
-    if r in have_set:
-        return True
-    # fuzzy match against have_set
-    if not have_set:
-        return False
-    matches = get_close_matches(
-        r, list(have_set), n=1, cutoff=cutoff
-    )
-    return len(matches) > 0
+    return r in have_set
