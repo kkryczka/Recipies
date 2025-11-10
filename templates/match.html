@@ -26,8 +26,10 @@
           <form method="post" action="/match" id="matchForm">
             <div class="controls-wrap">
               <div class="input-row">
-                <input id="searchInput" class="search-input form-control" type="text" placeholder="Enter an ingredient (e.g., chicken, tomatoes, rice)" aria-label="Ingredients" value="{{ have_text | replace('\n', ', ') }}">
-                <button type="button" id="addChipBtn" class="btn btn-outline-secondary">+</button>
+                <div class="input-with-button">
+                  <input id="searchInput" class="search-input form-control" type="text" placeholder="Enter an ingredient (e.g., chicken, tomatoes, rice)" aria-label="Ingredients" value="{{ have_text | replace('\n', ', ') }}">
+                  <button type="button" id="addChipBtn" class="add-ingredient-btn">+</button>
+                </div>
                 <button class="btn btn-success find-btn" type="submit">
                   <img src="/static/img/search-icon.svg" alt="" aria-hidden="true" style="width:16px;height:16px;margin-right:8px;vertical-align:middle;filter:invert(100%);">
                   Find Recipes
