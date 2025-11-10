@@ -41,13 +41,13 @@ body{font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;background:#f6f7f
 .card-title{margin:0 0 6px;font-family:'Playfair Display',serif}
 .card-sub{color:#6c757d;margin-bottom:16px}
 .search-card .card-body{ text-align:center }
-.input-row{display:flex;gap:12px;justify-content:center}
+.input-row{display:flex;gap:12px;justify-content:flex-start;align-items:center}
 .input-row .search-input{flex:1;padding:14px 16px;border-radius:10px;border:1px solid #eaecef;max-width:920px}
 
 /* input + inline add button integration (wireframe look) */
 .input-with-button{position:relative;display:block;width:100%;max-width:920px}
-.input-with-button .search-input{padding-right:76px;background:#fff;color:#111;border-radius:10px;border:1px solid #eaecef}
-.add-inline-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);height:44px;width:44px;border-radius:8px;border:none;background:transparent;color:var(--heading-color);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-weight:700}
+.input-with-button .search-input{padding-right:92px;background:#fff;color:#111;border-radius:10px;border:1px solid #eaecef}
+.add-inline-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);height:44px;width:44px;border-radius:8px;border:none;background:var(--accent);color:var(--accent-contrast);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-weight:700;box-shadow:0 4px 10px rgba(47,158,68,0.08)}
 .add-inline-btn:hover{background:rgba(16,24,40,0.04)}
 .add-inline-btn:focus{outline:2px solid rgba(47,158,68,0.12);outline-offset:2px}
 
@@ -66,7 +66,7 @@ body{font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;background:#f6f7f
 .controls-wrap > .input-row{width:100%;max-width:960px;margin:0 auto}
 .controls-wrap #suggestions,.controls-wrap #chipsRow,.controls-wrap .quick-add{max-width:960px;margin:8px auto 0 auto;text-align:left;width:100%}
 .controls-wrap .quick-add .quick-pills{justify-content:flex-start}
-.find-btn{background:var(--accent);color:#fff;border-radius:10px;padding:14px 20px;border:none;min-height:48px;font-size:1rem}
+.find-btn{background:var(--accent);color:#fff;border-radius:10px;padding:12px 20px;border:none;min-height:48px;font-size:1rem;display:inline-flex;align-items:center}
 .find-btn img{filter:invert(100%)}
 
 .chips-row{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
