@@ -44,6 +44,13 @@ body{font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;background:#f6f7f
 .input-row{display:flex;gap:12px;justify-content:center}
 .input-row .search-input{flex:1;padding:12px 14px;border-radius:8px;border:1px solid #eaecef;max-width:650px}
 
+/* inline add button inside input */
+.input-with-button{position:relative;display:block;width:100%;max-width:650px}
+.input-with-button .search-input{padding-right:54px}
+.add-inline-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);height:36px;width:36px;border-radius:8px;border:1px solid #dfe6ea;background:#fff;color:var(--heading-color);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.add-inline-btn:focus{outline:2px solid rgba(47,158,68,0.18);outline-offset:2px}
+.add-inline-btn:hover{background:#f6f8f9}
+
 /* Wrap controls so heading/input can be centered while internal controls are left-aligned under the input */
 .controls-wrap{display:flex;flex-direction:column;align-items:center;width:100%}
 /* center the input-row itself, then make the following controls match its max-width */
