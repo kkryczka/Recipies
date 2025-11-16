@@ -69,6 +69,12 @@ body{font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;background:#f6f7f
 .find-btn{background:var(--accent);color:#fff;border-radius:10px;padding:12px 20px;border:none;min-height:48px;font-size:1rem;display:inline-flex;align-items:center}
 .find-btn img{filter:invert(100%)}
 
+/* Input with button inside */
+.input-with-button{position:relative;flex:1;max-width:650px}
+.input-with-button .search-input{width:100%;padding-right:48px}
+.add-ingredient-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--accent);font-size:24px;font-weight:300;line-height:1;padding:4px 8px;cursor:pointer;transition:color 160ms ease}
+.add-ingredient-btn:hover{color:var(--accent-hover)}
+
 .chips-row{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
 .chip{background:#e9f8ef;color:#155724;border-radius:20px;padding:6px 10px;font-size:14px;display:inline-flex;align-items:center;opacity:0;transform:translateY(-6px);animation:chip-in 260ms ease forwards}
 .chip .chip-x{background:transparent;border:none;margin-left:8px;color:inherit}
